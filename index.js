@@ -23,7 +23,7 @@ const config = {
   TOKEN: "MTQ3MTkxODMwMTUyMDE5OTcwMA.G2QoiA.Sa_iRd23CesPATO4up4P3H35lYYi9HDVXfpSWE",
 
   // رتبة العليا (الإدارة)
-  highRole: "1265586160214736925",
+  highRole: "1471881885796798726",
 
   // رتبة المصممين
   logoRole: "1471955499850399920",

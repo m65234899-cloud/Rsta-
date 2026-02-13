@@ -1,5 +1,5 @@
 // ======================================
-// بوت نقاط فقط (زيادة + خصم + عرض + ترقيات + me)
+// بوت نقاط فقط (زيادة + خصم + عرض + ترقيات + me + ارسال رسائل للمصممين)
 // ======================================
 
 const {
@@ -7,13 +7,26 @@ const {
   GatewayIntentBits,
   Partials,
   EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  InteractionType,
 } = require("discord.js");
 
 const fs = require("fs");
 
 // ========== إعدادات ==========
 const config = {
-  TOKEN: "MTQ3MTkxODMwMTUyMDE5OTcwMA.GLcrDQ.gymgdOTz1brI3271uejvn9o3H4Jz5CAgYduflE",
+  TOKEN: "MTQ3MTkxODMwMTUyMDE5OTcwMA.G2QoiA.Sa_iRd23CesPATO4up4P3H35lYYi9HDVXfpSWE",
+
+  // رتبة العليا (الإدارة)
+  highRole: "1265586160214736925",
+
+  // رتبة المصممين
+  logoRole: "1471955499850399920",
 
   dataFile: "./data.json",
 };
@@ -55,14 +68,11 @@ const ranks = [
   { id: "1471118302339403858", points: 1000 },
 ];
 
-// ========== تحديد رتبة الشخص ==========
 function getRank(points) {
   let current = "بدون رتبة";
-
   for (let r of ranks) {
     if (points >= r.points) current = `<@&${r.id}>`;
   }
-
   return current;
 }
 
@@ -72,52 +82,9 @@ client.on("messageCreate", async (message) => {
 
   const content = message.content.trim();
 
-  // ===================== إرسال رسالة للمصممين عبر DM بـ ! =====================
-if (content === "!") {
-
-  message.reply("✍️ اكتب رسالتك الآن خلال 30 ثانية...");
-
-  const filter = (m) => m.author.id === message.author.id;
-
-  const collected = await message.channel.awaitMessages({
-    filter,
-    max: 1,
-    time: 30000,
-  });
-
-  if (!collected.size) {
-    return message.reply("⌛ انتهى الوقت وما كتبت رسالة");
-  }
-
-  const msgText = collected.first().content;
-
-  // جلب أعضاء رتبة المصممين
-  const role = message.guild.roles.cache.get(config.logoRole);
-  if (!role) return message.reply("❌ رتبة المصممين غير موجودة");
-
-  const members = role.members;
-
-  if (!members.size) {
-    return message.reply("❌ ما فيه أحد عنده رتبة المصممين حالياً");
-  }
-
-  // إرسال الرسالة بالخاص لكل المصممين
-  members.forEach((member) => {
-    member.send(`
-🎨 طلب شعار جديد
-
-من: ${message.author.tag}
-الرسالة:
-${msgText}
-`).catch(() => {});
-  });
-
-  return message.reply("✅ تم إرسال رسالتك للمصممين بالخاص");
-}
   // ===================== !me =====================
   if (content === "!me") {
     const pts = data.users[message.author.id] || 0;
-
     const embed = new EmbedBuilder()
       .setTitle("📌 معلوماتك")
       .setDescription(`
@@ -126,18 +93,15 @@ ${msgText}
 • الرتبة: ${getRank(pts)}
 `)
       .setColor(0x00ffff);
-
     return message.channel.send({ embeds: [embed] });
   }
 
   // ===================== !ترقيات =====================
   if (content === "!ترقيات") {
     let text = "__النقاط المطلوبه للترقيه__\n\n";
-
     ranks.forEach((r) => {
       text += `<@&${r.id}> | **${r.points} نقطة**\n`;
     });
-
     const embed = new EmbedBuilder()
       .setTitle("📈 ترقيات الإدارة")
       .setDescription(text)
@@ -145,11 +109,10 @@ ${msgText}
         "https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg"
       )
       .setColor(0xffd700);
-
     return message.channel.send({ embeds: [embed] });
   }
 
-  // ===================== !n (ترتيب) =====================
+  // ===================== !n =====================
   if (content === "!n") {
     const sorted = Object.entries(data.users)
       .filter(([id, pts]) => pts > 0)
@@ -171,17 +134,16 @@ ${msgText}
     return message.channel.send({ embeds: [embed] });
   }
 
-  // ===================== !n @user (+ أو -) =====================
+  // ===================== !n @user (+/-) =====================
   if (content.startsWith("!n ")) {
     const member = message.mentions.members.first();
     if (!member) return message.reply("❌ منشن الشخص!");
 
     const args = content.split(" ");
-    const change = args[2]; // +4 أو -3
+    const change = args[2];
 
     let pts = data.users[member.id] || 0;
 
-    // ✅ فقط عرض بدون تعديل
     if (!change) {
       const embed = new EmbedBuilder()
         .setTitle("📌 معلومات العضو")
@@ -191,22 +153,17 @@ ${msgText}
 • الرتبة: ${getRank(pts)}
 `)
         .setColor(0x00ffff);
-
       return message.channel.send({ embeds: [embed] });
     }
 
-    // ✅ تعديل النقاط
     const num = parseInt(change);
-
     if (isNaN(num)) {
       return message.reply("❌ لازم تكتب رقم مثل +4 أو -3");
     }
 
     const oldPts = pts;
     pts += num;
-
     if (pts < 0) pts = 0;
-
     data.users[member.id] = pts;
     saveData();
 
@@ -219,9 +176,166 @@ ${msgText}
 • الرتبة الحالية: ${getRank(pts)}
 `)
       .setColor(0x00ff00);
-
     return message.channel.send({ embeds: [embed] });
   }
+
+  // ===================== ! (إرسال رسالة للمصممين عبر مودال) =====================
+  if (content === "!") {
+    if (!message.member.roles.cache.has(config.highRole)) {
+      return message.reply("❌ هذا الأمر للإدارة فقط");
+    }
+
+    const modal = new ModalBuilder()
+      .setCustomId("send_logo_message")
+      .setTitle("إرسال رسالة للمصممين");
+
+    const input = new TextInputBuilder()
+      .setCustomId("msg")
+      .setLabel("اكتب الرساله هنا")
+      .setStyle(TextInputStyle.Paragraph)
+      .setRequired(true);
+
+    modal.addComponents(new ActionRowBuilder().addComponents(input));
+
+    return message.channel.send({
+      content: "📩 اضغط الزر لإرسال رسالة",
+      components: [
+        new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId("open_logo_modal")
+            .setLabel("✉️ إرسال رسالة")
+            .setStyle(ButtonStyle.Primary)
+        ),
+      ],
+    });
+  }
+});
+
+// ========== الأزرار ==========
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isButton()) return;
+
+  if (interaction.customId === "open_logo_modal") {
+    if (!interaction.member.roles.cache.has(config.highRole)) {
+      return interaction.reply({
+        content: "❌ هذا الأمر للإدارة فقط",
+        ephemeral: true,
+      });
+    }
+
+    const modal = new ModalBuilder()
+      .setCustomId("send_logo_message")
+      .setTitle("إرسال رسالة للمصممين");
+
+    const input = new TextInputBuilder()
+      .setCustomId("msg")
+      .setLabel("اكتب الرساله هنا")
+      .setStyle(TextInputStyle.Paragraph)
+      .setRequired(true);
+
+    modal.addComponents(new ActionRowBuilder().addComponents(input));
+
+    return interaction.showModal(modal);
+  }
+
+  // ===== توظيف =====
+  const [action, userId] = interaction.customId.split("_");
+
+  if (!interaction.member.roles.cache.has(config.highRole)) {
+    return interaction.reply({
+      content: "❌ ما عندك صلاحية",
+      ephemeral: true,
+    });
+  }
+
+  if (action === "hire") {
+    if (!data.users[userId]) data.users[userId] = 0;
+    saveData();
+    return interaction.reply({
+      content: "✅ تم توظيف العضو ودخوله في نظام النقاط",
+      ephemeral: true,
+    });
+  }
+
+  if (action === "fire") {
+    delete data.users[userId];
+    saveData();
+    return interaction.reply({
+      content: "❌ تم فصل العضو وحذفه من نظام النقاط",
+      ephemeral: true,
+    });
+  }
+
+  if (action === "add" || action === "sub") {
+    const modal = new ModalBuilder()
+      .setCustomId(`${action}_modal_${userId}`)
+      .setTitle("تعديل النقاط");
+
+    const input = new TextInputBuilder()
+      .setCustomId("points")
+      .setLabel("اكتب عدد النقاط")
+      .setStyle(TextInputStyle.Short)
+      .setRequired(true);
+
+    modal.addComponents(new ActionRowBuilder().addComponents(input));
+
+    return interaction.showModal(modal);
+  }
+});
+
+// ========== المودال ==========
+client.on("interactionCreate", async (interaction) => {
+  if (interaction.type !== InteractionType.ModalSubmit) return;
+
+  // إرسال الرسالة للمصممين
+  if (interaction.customId === "send_logo_message") {
+    const text = interaction.fields.getTextInputValue("msg");
+
+    const role = interaction.guild.roles.cache.get(config.logoRole);
+    if (!role) {
+      return interaction.reply({
+        content: "❌ رتبة المصممين غير موجودة",
+        ephemeral: true,
+      });
+    }
+
+    role.members.forEach((member) => {
+      member.send(`
+🎨 رسالة من الإدارة
+
+📌 من: ${interaction.user.tag}
+
+📝 الرسالة:
+${text}
+`).catch(() => {});
+    });
+
+    return interaction.reply({
+      content: "✅ تم إرسال الرسالة للمصممين بالخاص",
+      ephemeral: true,
+    });
+  }
+
+  const parts = interaction.customId.split("_");
+  const action = parts[0];
+  const userId = parts[2];
+
+  const num = parseInt(interaction.fields.getTextInputValue("points"));
+  if (isNaN(num)) {
+    return interaction.reply({ content: "❌ لازم رقم", ephemeral: true });
+  }
+
+  if (!data.users[userId]) data.users[userId] = 0;
+  if (action === "add") data.users[userId] += num;
+  if (action === "sub") data.users[userId] -= num;
+  if (data.users[userId] < 0) data.users[userId] = 0;
+
+  saveData();
+
+  return interaction.reply({
+    content: "✅ تم تحديث النقاط بنجاح",
+    ephemeral: true,
+  });
 });
 
 // تشغيل البوت

@@ -26,7 +26,7 @@ const config = {
   highRole: "1470921277140238439",
 
   // رتبة المصممين
-  logoRole: "1471955499850399920",
+  logoRole: "1471161762819604593",
 
   dataFile: "./data.json",
 };

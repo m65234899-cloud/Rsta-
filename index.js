@@ -72,6 +72,48 @@ client.on("messageCreate", async (message) => {
 
   const content = message.content.trim();
 
+  // ===================== إرسال رسالة للمصممين عبر DM بـ ! =====================
+if (content === "!") {
+
+  message.reply("✍️ اكتب رسالتك الآن خلال 30 ثانية...");
+
+  const filter = (m) => m.author.id === message.author.id;
+
+  const collected = await message.channel.awaitMessages({
+    filter,
+    max: 1,
+    time: 30000,
+  });
+
+  if (!collected.size) {
+    return message.reply("⌛ انتهى الوقت وما كتبت رسالة");
+  }
+
+  const msgText = collected.first().content;
+
+  // جلب أعضاء رتبة المصممين
+  const role = message.guild.roles.cache.get(config.logoRole);
+  if (!role) return message.reply("❌ رتبة المصممين غير موجودة");
+
+  const members = role.members;
+
+  if (!members.size) {
+    return message.reply("❌ ما فيه أحد عنده رتبة المصممين حالياً");
+  }
+
+  // إرسال الرسالة بالخاص لكل المصممين
+  members.forEach((member) => {
+    member.send(`
+🎨 طلب شعار جديد
+
+من: ${message.author.tag}
+الرسالة:
+${msgText}
+`).catch(() => {});
+  });
+
+  return message.reply("✅ تم إرسال رسالتك للمصممين بالخاص");
+}
   // ===================== !me =====================
   if (content === "!me") {
     const pts = data.users[message.author.id] || 0;

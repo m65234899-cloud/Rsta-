@@ -23,7 +23,7 @@ const config = {
   TOKEN: "MTQ3MTkxODMwMTUyMDE5OTcwMA.G2QoiA.Sa_iRd23CesPATO4up4P3H35lYYi9HDVXfpSWE",
 
   // رتبة العليا (الإدارة)
-  highRole: "1471881885796798726",
+  highRole: "1470921277140238439",
 
   // رتبة المصممين
   logoRole: "1471955499850399920",
@@ -301,11 +301,7 @@ client.on("interactionCreate", async (interaction) => {
 
     role.members.forEach((member) => {
       member.send(`
-🎨 رسالة من الإدارة
 
-📌 من: ${interaction.user.tag}
-
-📝 الرسالة:
 ${text}
 `).catch(() => {});
     });

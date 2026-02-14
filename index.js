@@ -2,6 +2,8 @@
 // بوت نقاط فقط (زيادة + خصم + عرض + ترقيات + me + ارسال رسائل للمصممين)
 // ======================================
 
+require("dotenv").config(); // ✅ يسحب التوكن من Secrets
+
 const {
   Client,
   GatewayIntentBits,
@@ -20,8 +22,6 @@ const fs = require("fs");
 
 // ========== إعدادات ==========
 const config = {
-  TOKEN: "MTQ3MTkxODMwMTUyMDE5OTcwMA.G2QoiA.Sa_iRd23CesPATO4up4P3H35lYYi9HDVXfpSWE",
-
   // رتبة العليا (الإدارة)
   highRole: "1470921277140238439",
 
@@ -93,6 +93,7 @@ client.on("messageCreate", async (message) => {
 • الرتبة: ${getRank(pts)}
 `)
       .setColor(0x00ffff);
+
     return message.channel.send({ embeds: [embed] });
   }
 
@@ -102,6 +103,7 @@ client.on("messageCreate", async (message) => {
     ranks.forEach((r) => {
       text += `<@&${r.id}> | **${r.points} نقطة**\n`;
     });
+
     const embed = new EmbedBuilder()
       .setTitle("📈 ترقيات الإدارة")
       .setDescription(text)
@@ -109,6 +111,7 @@ client.on("messageCreate", async (message) => {
         "https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg"
       )
       .setColor(0xffd700);
+
     return message.channel.send({ embeds: [embed] });
   }
 
@@ -153,6 +156,7 @@ client.on("messageCreate", async (message) => {
 • الرتبة: ${getRank(pts)}
 `)
         .setColor(0x00ffff);
+
       return message.channel.send({ embeds: [embed] });
     }
 
@@ -164,6 +168,7 @@ client.on("messageCreate", async (message) => {
     const oldPts = pts;
     pts += num;
     if (pts < 0) pts = 0;
+
     data.users[member.id] = pts;
     saveData();
 
@@ -176,6 +181,7 @@ client.on("messageCreate", async (message) => {
 • الرتبة الحالية: ${getRank(pts)}
 `)
       .setColor(0x00ff00);
+
     return message.channel.send({ embeds: [embed] });
   }
 
@@ -185,20 +191,8 @@ client.on("messageCreate", async (message) => {
       return message.reply("❌ هذا الأمر للإدارة فقط");
     }
 
-    const modal = new ModalBuilder()
-      .setCustomId("send_logo_message")
-      .setTitle("إرسال رسالة للمصممين");
-
-    const input = new TextInputBuilder()
-      .setCustomId("msg")
-      .setLabel("اكتب الرساله هنا")
-      .setStyle(TextInputStyle.Paragraph)
-      .setRequired(true);
-
-    modal.addComponents(new ActionRowBuilder().addComponents(input));
-
     return message.channel.send({
-      content: "📩 اضغط الزر لإرسال رسالة",
+      content: "📩 اضغط الزر لإرسال رسالة للمصممين",
       components: [
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
@@ -237,57 +231,12 @@ client.on("interactionCreate", async (interaction) => {
 
     return interaction.showModal(modal);
   }
-
-  // ===== توظيف =====
-  const [action, userId] = interaction.customId.split("_");
-
-  if (!interaction.member.roles.cache.has(config.highRole)) {
-    return interaction.reply({
-      content: "❌ ما عندك صلاحية",
-      ephemeral: true,
-    });
-  }
-
-  if (action === "hire") {
-    if (!data.users[userId]) data.users[userId] = 0;
-    saveData();
-    return interaction.reply({
-      content: "✅ تم توظيف العضو ودخوله في نظام النقاط",
-      ephemeral: true,
-    });
-  }
-
-  if (action === "fire") {
-    delete data.users[userId];
-    saveData();
-    return interaction.reply({
-      content: "❌ تم فصل العضو وحذفه من نظام النقاط",
-      ephemeral: true,
-    });
-  }
-
-  if (action === "add" || action === "sub") {
-    const modal = new ModalBuilder()
-      .setCustomId(`${action}_modal_${userId}`)
-      .setTitle("تعديل النقاط");
-
-    const input = new TextInputBuilder()
-      .setCustomId("points")
-      .setLabel("اكتب عدد النقاط")
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true);
-
-    modal.addComponents(new ActionRowBuilder().addComponents(input));
-
-    return interaction.showModal(modal);
-  }
 });
 
 // ========== المودال ==========
 client.on("interactionCreate", async (interaction) => {
   if (interaction.type !== InteractionType.ModalSubmit) return;
 
-  // إرسال الرسالة للمصممين
   if (interaction.customId === "send_logo_message") {
     const text = interaction.fields.getTextInputValue("msg");
 
@@ -300,10 +249,7 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     role.members.forEach((member) => {
-      member.send(`
-
-${text}
-`).catch(() => {});
+      member.send(text).catch(() => {});
     });
 
     return interaction.reply({
@@ -311,28 +257,7 @@ ${text}
       ephemeral: true,
     });
   }
-
-  const parts = interaction.customId.split("_");
-  const action = parts[0];
-  const userId = parts[2];
-
-  const num = parseInt(interaction.fields.getTextInputValue("points"));
-  if (isNaN(num)) {
-    return interaction.reply({ content: "❌ لازم رقم", ephemeral: true });
-  }
-
-  if (!data.users[userId]) data.users[userId] = 0;
-  if (action === "add") data.users[userId] += num;
-  if (action === "sub") data.users[userId] -= num;
-  if (data.users[userId] < 0) data.users[userId] = 0;
-
-  saveData();
-
-  return interaction.reply({
-    content: "✅ تم تحديث النقاط بنجاح",
-    ephemeral: true,
-  });
 });
 
-// تشغيل البوت
-client.login(config.TOKEN);
+// ✅ تشغيل البوت بالتوكن من Secrets
+client.login(process.env.TOKEN);

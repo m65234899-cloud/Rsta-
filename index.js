@@ -84,22 +84,29 @@ client.on("messageCreate", async message => {
   let data = loadData();
 
 /* ---------- !me ---------- */
+if (content === "!me") {
 
-  if (content === "!me") {
+  const member = message.member;
 
-    const pts = data.users[message.author.id] || 0;
+  // أعلى رتبة عند العضو داخل السيرفر
+  const highestRole = member.roles.cache
+    .filter(r => r.id !== message.guild.id)
+    .sort((a, b) => b.position - a.position)
+    .first();
 
-    const embed = new EmbedBuilder()
-      .setTitle("📌 معلوماتك")
-      .setDescription(`
+  const pts = data.users[message.author.id] || 0;
+
+  const embed = new EmbedBuilder()
+    .setTitle("📌 معلوماتك")
+    .setDescription(`
 • الاسم: <@${message.author.id}>
 • النقاط: **${pts}**
-• الرتبة: ${getRank(pts)}
+• أعلى رتبة: ${highestRole ? `<@&${highestRole.id}>` : "لا يوجد"}
 `)
-      .setColor(0x00ffff);
+    .setColor(0x00ffff);
 
-    return message.channel.send({ embeds: [embed] });
-  }
+  return message.channel.send({ embeds: [embed] });
+}
 
 /* ---------- $m ---------- */
 

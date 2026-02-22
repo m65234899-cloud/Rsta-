@@ -93,7 +93,24 @@ client.on("messageCreate", async (message) => {
       .setColor(0x00ffff);
     return message.channel.send({ embeds: [embed] });
   }
+  //===================== !مهام =====================
+if (content === "!مهام") {
+  let text = "*** Management tasks 📌 ***\n\n";
 
+  text += "استلام تكت : **3**\n";
+  text += "محاسبة عضو : **2**\n";
+  text += "فعاليه في الشات : **3**\n";
+  text += "مساعدة عضو : **1**\n";
+  text += "تأيم أوت لمخالف : **2**\n";
+  text += "مشاركة في لعبه في الشات : **1**\n";
+
+  const embed = new EmbedBuilder()
+    .setTitle("📋 المهام الإدارية")
+    .setDescription(text)
+    .setColor(0x00ffff);
+
+  return message.channel.send({ embeds: [embed] });
+}
   // ===================== !ترقيات =====================
   if (content === "!ترقيات") {
     let text = "__النقاط المطلوبه للترقيه__\n\n";

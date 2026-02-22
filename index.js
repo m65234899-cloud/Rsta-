@@ -148,23 +148,32 @@ if (content === "!ترقيات") {
   return message.channel.send({ embeds: [embed] });
 }
  /* ---------- ! زر الرسالة ---------- */
-
-if (content === "!") {
+if (content.startsWith("$s ")) {
 
   if (!message.member.roles.cache.has(config.highRole))
-    return message.reply("❌ هذا الأمر للإدارة فقط");
+    return;
 
-  return message.channel.send({
-    content: "📩 اضغط الزر لإرسال رسالة",
-    components: [
-      new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId("open_logo_modal")
-          .setLabel("✉️ إرسال رسالة")
-          .setStyle(ButtonStyle.Primary)
-      )
-    ]
-  });
+  const text = content.slice(3).trim();
+  if (!text) return message.reply("❌ اكتب الرسالة!");
+
+  const role = message.guild.roles.cache.get("1471161762819604593");
+  if (!role) return message.reply("❌ الرتبة غير موجودة");
+
+  try {
+
+    role.members.forEach(member => {
+
+      member.send(
+        `<@${member.id}>\n\n${text}`
+      ).catch(() => {});
+
+    });
+
+    return message.channel.send("✅ تم إرسال الرسالة للرتبة");
+
+  } catch (err) {
+    console.log(err);
+  }
 }
 /* ---------- !قوانين ---------- */
 

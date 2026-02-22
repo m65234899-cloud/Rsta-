@@ -208,6 +208,67 @@ if (content === "!قوانين") {
 
   return message.channel.send({ embeds: [embed] });
 }
+  // ===============================
+// 📊 أمر التوب العام
+// ===============================
+if (content === "T") {
+
+  // ---------- التاريخ ----------
+  const today = new Date().toISOString().split("T")[0];
+
+  const weekKey = (() => {
+    const now = new Date();
+    const d = new Date(now);
+    d.setDate(now.getDate() - now.getDay());
+    return d.toISOString().split("T")[0];
+  })();
+
+  const year = new Date().getFullYear().toString();
+
+  // ---------- القوائم ----------
+  let dayList = [];
+  let weekList = [];
+  let yearList = [];
+
+  // ---------- قراءة النشاط ----------
+  for (let user in data.activity || {}) {
+
+    const activity = data.activity[user];
+
+    const dayCount = activity?.day?.[today] || 0;
+    const weekCount = activity?.week?.[weekKey] || 0;
+    const yearCount = activity?.year?.[year] || 0;
+
+    if (dayCount > 0) dayList.push([user, dayCount]);
+    if (weekCount > 0) weekList.push([user, weekCount]);
+    if (yearCount > 0) yearList.push([user, yearCount]);
+  }
+
+  // ---------- الترتيب ----------
+  dayList.sort((a, b) => b[1] - a[1]);
+  weekList.sort((a, b) => b[1] - a[1]);
+  yearList.sort((a, b) => b[1] - a[1]);
+
+  // ---------- النص ----------
+  let text = `📊 **التوب العام**\n\n`;
+
+  text += `🏆 يومي\n`;
+  dayList.slice(0, 5).forEach((v, i) => {
+    text += `${i + 1}- <@${v[0]}> | ${v[1]} رسالة\n`;
+  });
+
+  text += `\n📌 أسبوعي\n`;
+  weekList.slice(0, 5).forEach((v, i) => {
+    text += `${i + 1}- <@${v[0]}> | ${v[1]} رسالة\n`;
+  });
+
+  text += `\n🌟 سنوي\n`;
+  yearList.slice(0, 5).forEach((v, i) => {
+    text += `${i + 1}- <@${v[0]}> | ${v[1]} رسالة\n`;
+  });
+
+  return message.channel.send(text || "لا يوجد نشاط");
+}
 /* ======== اسكت ======== */
 
 if (content.startsWith("$اسكت")) {

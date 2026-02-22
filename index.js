@@ -67,7 +67,7 @@ const ranks = [
 ];
 
 function getRank(points) {
-  let current = "بدون رتبة";
+  let current = "@1471101769236090971";
   for (let r of ranks) {
     if (points >= r.points) current = `<@&${r.id}>`;
   }

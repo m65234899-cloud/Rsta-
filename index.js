@@ -222,19 +222,27 @@ if (content === "!قوانين") {
 
   if (content.startsWith("!استدعاء")) {
 
-    const member = message.mentions.members.first();
-    if (!member) return message.reply("❌ منشن الشخص");
+  const member = message.mentions.members.first();
+  if (!member) return message.reply("❌ لازم تمنشن الشخص!");
 
-    const text = content.split(" ").slice(2).join(" ");
-    if (!text) return message.reply("❌ اكتب رسالة");
+  const text = content.split(" ").slice(2).join(" ");
+  if (!text) return message.reply("❌ اكتب رسالة الاستدعاء!");
 
-    member.send(`📌 استدعاء:\n${text}`).catch(() => {
-      message.reply("❌ لا أستطيع الإرسال");
-    });
+  try {
 
-    return message.reply("✅ تم الاستدعاء");
+    await member.send(
+      `📌 تم استدعاؤك بواسطة <@${message.author.id}>\n\n` +
+      `👤 المستدعى: <@${member.id}>\n` +
+      `📩 الرسالة:\n${text}`
+    );
+
+    return message.reply("✅ تم الاستدعاء عبر الخاص");
+
+  } catch {
+
+    return message.reply("❌ لا أستطيع إرسال الرسالة للخاص");
   }
-
+}
 /* ---------- خط ---------- */
 
   if (content === "!خط") {

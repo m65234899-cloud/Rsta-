@@ -138,7 +138,7 @@ if (content === "!خط") {
 
     return message.channel.send({
       files: [
-        "https://cdn.discordapp.com/attachments/1471151896613097644/1474939789609275695/InShot_20260220_001522642.jpg"
+        "[![In-Shot-20260220-001522642.jpg](https://i.postimg.cc/T3NKWd48/In-Shot-20260220-001522642.jpg)](https://postimg.cc/ZW3bGSmj)"
       ]
     });
 

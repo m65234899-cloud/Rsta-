@@ -208,7 +208,7 @@ if (content === "!قوانين") {
 
   return message.channel.send({ embeds: [embed] });
 }
-  //——————اسكت—————————
+//——————اسكت—————————
 const ms = require('ms');
 
 client.on('messageCreate', async (message) => {
@@ -220,7 +220,7 @@ client.on('messageCreate', async (message) => {
 
   if (command === 'اسكت') {
 
-    if (!message.member.permissions.has('ModerateMembers')) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
       return message.reply('❌ ما عندك صلاحية تعطي تايم.');
     }
 
@@ -231,10 +231,10 @@ client.on('messageCreate', async (message) => {
     if (!timeArg) return message.reply('❌ حدد المدة مثال: 5m');
 
     const duration = ms(timeArg);
-    if (!duration) return message.reply('❌ مدة غير صحيحة. مثال: 5m أو 1h');
+    if (!duration) return message.reply('❌ مدة غير صحيحة.');
 
     if (!member.moderatable) {
-      return message.reply('❌ ما أقدر أعطيه تايم (تأكد رتبة البوت أعلى).');
+      return message.reply('❌ رتبة البوت أقل من الشخص.');
     }
 
     try {

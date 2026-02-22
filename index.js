@@ -219,45 +219,40 @@ if (content === "!قوانين") {
   }
 
 /* ---------- استدعاء ---------- */
-
 if (content.startsWith("!استدعاء")) {
 
   const guild = message.guild;
-
   if (!guild) return;
 
-  const mentionRole =
-    message.mentions.roles.first(); // لو منشن رتبة
-  const mentionMember =
-    message.mentions.members.first(); // لو منشن عضو
+  const role = message.mentions.roles.first();
+  const member = message.mentions.members.first();
 
   const text = content.split(" ").slice(2).join(" ");
-  if (!text) return message.reply("❌ اكتب رسالة الاستدعاء!");
+  if (!text) return message.reply("❌ اكتب الرسالة!");
 
   try {
 
-    /* ===== لو منشن رتبة ===== */
+    /* ===== استدعاء رتبة ===== */
 
-    if (mentionRole) {
+    if (role) {
 
-      mentionRole.members.forEach(member => {
-        member.send(`📌 استدعاء إداري\n\n${text}`)
-          .catch(() => {});
+      role.members.forEach(m => {
+        m.send(`<@${m.id}>\n\n${text}`).catch(() => {});
       });
 
-      return message.reply("✅ تم استدعاء الرتبة عبر الخاص");
+      return message.reply("✅ تم استدعاء الرتبة");
     }
 
-    /* ===== لو منشن عضو ===== */
+    /* ===== استدعاء عضو ===== */
 
-    if (mentionMember) {
+    if (member) {
 
-      await mentionMember.send(`📌 استدعاء إداري\n\n${text}`)
+      await member.send(`<@${member.id}>\n\n${text}`)
         .catch(() => {
           message.reply("❌ لا أستطيع إرسال الرسالة للخاص");
         });
 
-      return message.reply("✅ تم الاستدعاء عبر الخاص");
+      return message.reply("✅ تم الاستدعاء");
     }
 
     return message.reply("❌ منشن عضو أو رتبة!");

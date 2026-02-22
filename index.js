@@ -101,13 +101,35 @@ if (content === "!me") {
     .setDescription(`
 • الاسم: <@${message.author.id}>
 • النقاط: **${pts}**
-• أعلى رتبة: ${highestRole ? `<@&${highestRole.id}>` : "لا يوجد"}
+•  الرتبة: ${highestRole ? `<@&${highestRole.id}>` : "لا يوجد"}
 `)
     .setColor(0x00ffff);
 
   return message.channel.send({ embeds: [embed] });
 }
+if (content.startsWith("$n")) {
 
+  const member = message.mentions.members.first();
+  if (!member) return message.reply("❌ منشن الشخص");
+
+  const pts = data.users[member.id] || 0;
+
+  const highestRole = member.roles.cache
+    .filter(r => r.id !== message.guild.id)
+    .sort((a, b) => b.position - a.position)
+    .first();
+
+  const embed = new EmbedBuilder()
+    .setTitle("📌 معلومات العضو")
+    .setDescription(`
+• الاسم: <@${member.id}>
+• النقاط: **${pts}**
+• الرتبة: ${highestRole ? `<@&${highestRole.id}>` : "لا يوجد"}
+`)
+    .setColor(0x00ffff);
+
+  return message.channel.send({ embeds: [embed] });
+}
 /* ---------- $m ---------- */
 
   if (content === "$m") {

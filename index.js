@@ -125,21 +125,28 @@ client.on("messageCreate", async message => {
 
 /* ---------- ترقيات ---------- */
 
-  if (content === "!ترقيات") {
+if (content === "!ترقيات") {
 
-    let text = "__النقاط المطلوبة__\n\n";
+  let text = "__النقاط المطلوبه للترقيه__\n\n";
 
-    ranks.forEach(r => {
-      text += `<@&${r.id}> | ${r.points} نقطة\n`;
-    });
+  ranks.forEach((r) => {
+    text += `<@&${r.id}> | **${r.points} نقطة**\n`;
+  });
 
-    const embed = new EmbedBuilder()
-      .setTitle("📈 الترقيات")
-      .setDescription(text)
-      .setColor(0xffd700);
+  const embed = new EmbedBuilder()
+    .setTitle("📈 ترقيات الإدارة")
+    .setDescription(text)
+    .setColor(0xffd700);
 
-    return message.channel.send({ embeds: [embed] });
- }
+  // محاولة إرسال الصورة مع التأكد
+  try {
+    embed.setImage(
+      "https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg"
+    );
+  } catch {}
+
+  return message.channel.send({ embeds: [embed] });
+}
  /* ---------- ! زر الرسالة ---------- */
 
 if (content === "!") {

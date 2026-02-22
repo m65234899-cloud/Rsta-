@@ -208,44 +208,40 @@ if (content === "!قوانين") {
 
   return message.channel.send({ embeds: [embed] });
 }
-//——————اسكت—————————
-const ms = require('ms');
+/* ========= اسكت ========= */
 
-client.on('messageCreate', async (message) => {
-  if (message.author.bot) return;
-  if (!message.content.startsWith('$')) return;
+if (content.startsWith("$اسكت")) {
 
-  const args = message.content.slice(1).trim().split(/ +/);
-  const command = args.shift();
-
-  if (command === 'اسكت') {
-
-    if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
-      return message.reply('❌ ما عندك صلاحية تعطي تايم.');
-    }
-
-    const member = message.mentions.members.first();
-    if (!member) return message.reply('❌ لازم تمنشن شخص.');
-
-    const timeArg = args[0];
-    if (!timeArg) return message.reply('❌ حدد المدة مثال: 5m');
-
-    const duration = ms(timeArg);
-    if (!duration) return message.reply('❌ مدة غير صحيحة.');
-
-    if (!member.moderatable) {
-      return message.reply('❌ رتبة البوت أقل من الشخص.');
-    }
-
-    try {
-      await member.timeout(duration, `اسكت بواسطة ${message.author.tag}`);
-      message.reply(`✅ تم إسكات ${member.user.tag} لمدة ${timeArg}`);
-    } catch (error) {
-      message.reply('❌ صار خطأ.');
-    }
+  if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
+    return message.reply("❌ ما عندك صلاحية.");
   }
-});
-/* ---------- مهام ---------- */
+
+  const member = message.mentions.members.first();
+  if (!member) return message.reply("❌ منشن شخص.");
+
+  const args = content.split(" ");
+  const time = args[2];
+
+  if (!time) return message.reply("❌ حدد المدة مثال: 5m");
+
+  const duration = ms(time);
+  if (!duration) return message.reply("❌ مدة غير صحيحة.");
+
+  if (!member.moderatable) {
+    return message.reply("❌ رتبة البوت أقل من الشخص.");
+  }
+
+  try {
+
+    await member.timeout(duration, `اسكت بواسطة ${message.author.tag}`);
+
+    message.reply(`✅ تم إسكات ${member.user.tag} لمدة ${time}`);
+
+  } catch {
+    message.reply("❌ صار خطأ.");
+  }
+}
+  ///* ---------- مهام ---------- */
 
   if (content === "!مهام") {
 

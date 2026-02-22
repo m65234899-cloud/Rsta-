@@ -131,27 +131,39 @@ if (content.startsWith("$n")) {
   return message.channel.send({ embeds: [embed] });
 }
 /* ---------- $m ---------- */
+if (content === "$m") {
 
-  if (content === "$m") {
+  const text = `
+🤖 أوامر البوت
 
-    const text = `
+📌 الأوامر العامة
 !me
+$n @user
 !مهام
 !ترقيات
 !n
+!قوانين
+
+📌 إدارة النقاط
 !n @user +/- رقم
+
+📌 الرسائل
+$s الرسالة → إرسال رسالة لرتبة المصممين
+!استدعاء @user الرسالة → استدعاء شخص
+!استدعاء @role الرسالة → استدعاء رتبة
+
+📌 أدوات
 !خط
-!استدعاء @user الرسالة
+$اسكت @user 5m → تايم اوت
 `;
 
-    const embed = new EmbedBuilder()
-      .setTitle("🤖 أوامر البوت")
-      .setDescription(text)
-      .setColor(0x00ffff);
+  const embed = new EmbedBuilder()
+    .setTitle("🤖 أوامر البوت")
+    .setDescription(text)
+    .setColor(0x00ffff);
 
-    return message.channel.send({ embeds: [embed] });
-  }
-
+  return message.channel.send({ embeds: [embed] });
+}
 /* ---------- ترقيات ---------- */
 
 if (content === "!ترقيات") {

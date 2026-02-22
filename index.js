@@ -208,6 +208,43 @@ if (content === "!قوانين") {
 
   return message.channel.send({ embeds: [embed] });
 }
+  //——————اسكت—————————
+const ms = require('ms');
+
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  if (!message.content.startsWith('$')) return;
+
+  const args = message.content.slice(1).trim().split(/ +/);
+  const command = args.shift();
+
+  if (command === 'اسكت') {
+
+    if (!message.member.permissions.has('ModerateMembers')) {
+      return message.reply('❌ ما عندك صلاحية تعطي تايم.');
+    }
+
+    const member = message.mentions.members.first();
+    if (!member) return message.reply('❌ لازم تمنشن شخص.');
+
+    const timeArg = args[0];
+    if (!timeArg) return message.reply('❌ حدد المدة مثال: 5m');
+
+    const duration = ms(timeArg);
+    if (!duration) return message.reply('❌ مدة غير صحيحة. مثال: 5m أو 1h');
+
+    if (!member.moderatable) {
+      return message.reply('❌ ما أقدر أعطيه تايم (تأكد رتبة البوت أعلى).');
+    }
+
+    try {
+      await member.timeout(duration, `اسكت بواسطة ${message.author.tag}`);
+      message.reply(`✅ تم إسكات ${member.user.tag} لمدة ${timeArg}`);
+    } catch (error) {
+      message.reply('❌ صار خطأ.');
+    }
+  }
+});
 /* ---------- مهام ---------- */
 
   if (content === "!مهام") {

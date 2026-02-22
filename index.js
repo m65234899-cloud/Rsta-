@@ -149,7 +149,19 @@ if (content === "!مهام") {
 
     return message.channel.send({ embeds: [embed] });
   }
+//===================== !خط =====================
+if (content === "!خط") {
+  try {
+    await message.delete().catch(() => {});
 
+    return message.channel.send({
+      files: [
+        "https://cdn.discordapp.com/attachments/1471151896613097644/1474939789609275695/InShot_20260220_001522642.jpg"
+      ]
+    });
+  } catch (err) {
+    console.log(err);
+}
   // ===================== !n @user (+/-) =====================
   if (content.startsWith("!n ")) {
     const member = message.mentions.members.first();

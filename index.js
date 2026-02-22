@@ -107,11 +107,10 @@ if (content === "!مهام") {
   const embed = new EmbedBuilder()
     .setTitle("📋 المهام الإدارية")
     .setDescription(text)
-    .setColor(0x00ffff);
-    .setImage(
-        "https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg"
-      )
-  return message.channel.send({ embeds: [embed] });
+    .setColor(0x00ffff)
+    .setImage("https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg");
+
+  return message.channel.send({ embeds: [
 }
   // ===================== !ترقيات =====================
   if (content === "!ترقيات") {

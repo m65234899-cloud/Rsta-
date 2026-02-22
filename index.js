@@ -154,7 +154,28 @@ if (content === "!مهام") {
 
   return message.channel.send({ embeds: [embed] });
 }
+//===================== !استدعاء =====================
+if (content.startsWith("!استدعاء")) {
+  const member = message.mentions.members.first();
+  if (!member) return message.reply("❌ لازم تمنشن الشخص!");
 
+  const args = content.split(" ");
+  args.shift();
+
+  const text = args.slice(1).join(" ");
+  if (!text) return message.reply("❌ لازم تكتب الرسالة!");
+
+  try {
+    await member.send(`📩 لديك استدعاء جديد:\n\n${text}`)
+      .catch(() => message.reply("❌ لا أستطيع إرسال الرسالة للخاص"));
+
+    await message.delete().catch(() => {});
+
+    return message.channel.send("✅ تم استدعاء العضو عبر الخاص");
+  } catch (err) {
+    console.log(err);
+  }
+}
 //===================== !خط =====================
 if (content === "!خط") {
   try {

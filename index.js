@@ -176,14 +176,14 @@ if (content.startsWith("!استدعاء")) {
     console.log(err);
   }
 }
-//===================== !خط =====================
+  //===================== !خط =====================
 if (content === "!خط") {
   try {
     await message.delete().catch(() => {});
 
     return message.channel.send({
       files: [
-        "https://top4top.io/delf09a4818d9a8ded212f2e9c440fa2004.html"
+        "https://cdn.discordapp.com/attachments/1471151896613097644/1474945852643737682/InShot_20260220_001522642.jpg"
       ]
     });
 

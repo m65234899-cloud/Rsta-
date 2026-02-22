@@ -152,30 +152,28 @@ if (content === "!مهام") {
       "https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg"
     );
 
-  return message.channel.send({ embeds: [embed] });
-}
-//===================== !استدعاء =====================
+  return message.channel.send({ embeds: [
+    }
+     //===================== !استدعاء =====================
 if (content.startsWith("!استدعاء")) {
-  const member = message.mentions.members.first();
-  if (!member) return message.reply("❌ لازم تمنشن الشخص!");
-
-  const args = content.split(" ");
-  args.shift();
-
-  const text = args.slice(1).join(" ");
-  if (!text) return message.reply("❌ لازم تكتب الرسالة!");
-
   try {
-    await member.send(`📩 لديك استدعاء جديد:\n\n${text}`)
-      .catch(() => message.reply("❌ لا أستطيع إرسال الرسالة للخاص"));
+    const member = message.mentions.members.first();
+    if (!member) return message.reply("❌ لازم تمنشن الشخص!");
 
-    await message.delete().catch(() => {});
+    const text = content.split(" ").slice(2).join(" ");
+    if (!text) return message.reply("❌ اكتب رسالة الاستدعاء!");
 
-    return message.channel.send("✅ تم استدعاء العضو عبر الخاص");
+    // إرسال الرسالة للخاص
+    await member.send(`📌 لديك استدعاء جديد:\n\n${text}`).catch(() => {
+      message.reply("❌ لا أستطيع إرسال الرسالة للخاص");
+    });
+
+    return message.reply("✅ تم الاستدعاء عبر الخاص");
+
   } catch (err) {
     console.log(err);
   }
-}
+}                         
   //===================== !خط =====================
 if (content === "!خط") {
   try {
@@ -287,39 +285,36 @@ if (content === "!قوانين") {
       .setColor(0x00ff00);
     return message.channel.send({ embeds: [embed] });
   }
-
-  // ===================== ! (إرسال رسالة للمصممين عبر مودال) =====================
-  if (content === "!") {
-    if (!message.member.roles.cache.has(config.highRole)) {
-      return message.reply("❌ هذا الأمر للإدارة فقط");
-    }
-
-    const modal = new ModalBuilder()
-      .setCustomId("send_logo_message")
-      .setTitle("إرسال رسالة للمصممين");
-
-    const input = new TextInputBuilder()
-      .setCustomId("msg")
-      .setLabel("اكتب الرساله هنا")
-      .setStyle(TextInputStyle.Paragraph)
-      .setRequired(true);
-
-    modal.addComponents(new ActionRowBuilder().addComponents(input));
-
-    return message.channel.send({
-      content: "📩 اضغط الزر لإرسال رسالة",
-      components: [
-        new ActionRowBuilder().addComponents(
-          new ButtonBuilder()
-            .setCustomId("open_logo_modal")
-            .setLabel("✉️ إرسال رسالة")
-            .setStyle(ButtonStyle.Primary)
-        ),
-      ],
-    });
+// ===================== ! =====================
+if (content === "!") {
+  if (!message.member.roles.cache.has(config.highRole)) {
+    return message.reply("❌ هذا الأمر للإدارة فقط");
   }
-});
 
+  const modal = new ModalBuilder()
+    .setCustomId("send_logo_message")
+    .setTitle("إرسال رسالة للمصممين");
+
+  const input = new TextInputBuilder()
+    .setCustomId("msg")
+    .setLabel("اكتب الرساله هنا")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true);
+
+  modal.addComponents(new ActionRowBuilder().addComponents(input));
+
+  return message.channel.send({
+    content: "📩 اضغط الزر لإرسال رسالة",
+    components: [
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("open_logo_modal")
+          .setLabel("✉️ إرسال رسالة")
+          .setStyle(ButtonStyle.Primary)
+      ),
+    ],
+  });
+}
 // ========== الأزرار ==========
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;

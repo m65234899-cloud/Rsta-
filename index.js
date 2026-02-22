@@ -210,32 +210,44 @@ if (content === "!قوانين") {
 }
 /* ======== اسكت ======== */
 
-if (message.content.startsWith("$اسكت")) {
+if (content.startsWith("$اسكت")) {
 
-  const ms = require("ms");
-  const { PermissionsBitField } = require("discord.js");
-
-  if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
-    return message.reply("❌ ما عندك صلاحية.");
-  }
+  if (!message.member.roles.cache.has(config.highRole))
+    return message.reply("❌ ليس لديك صلاحية");
 
   const member = message.mentions.members.first();
-  if (!member) return message.reply("❌ منشن شخص.");
+  if (!member) return message.reply("❌ منشن الشخص");
 
-  const args = message.content.split(" ");
-  const time = args[2];
+  const args = content.split(" ");
 
-  if (!time) return message.reply("❌ اكتب المدة مثال: 5m");
+  const timeText = args[2];
+  if (!timeText) return message.reply("❌ اكتب المدة مثل 5m");
 
-  const duration = ms(time);
-  if (!duration) return message.reply("❌ مدة غير صحيحة.");
+  /* ===== تحويل الوقت ===== */
 
-  if (!member.moderatable) {
-    return message.reply("❌ رتبة البوت أقل من الشخص.");
+  const match = timeText.match(/(\d+)([mhd])/);
+
+  if (!match) return message.reply("❌ صيغة الوقت خطأ");
+
+  const value = parseInt(match[1]);
+  const unit = match[2];
+
+  let ms = 0;
+
+  if (unit === "m") ms = value * 60000;
+  if (unit === "h") ms = value * 3600000;
+  if (unit === "d") ms = value * 86400000;
+
+  try {
+
+    await member.timeout(ms, "Timeout بواسطة البوت");
+
+    return message.channel.send(`✅ تم إسكات <@${member.id}> لمدة ${timeText}`);
+
+  } catch {
+
+    return message.reply("❌ لا أستطيع إعطاء تايم أوت");
   }
-
-  await member.timeout(duration);
-  message.reply(`✅ تم إسكات ${member.user.tag} لمدة ${time}`);
 }
   ///* ---------- مهام ---------- */
 

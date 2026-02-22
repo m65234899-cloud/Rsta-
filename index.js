@@ -208,9 +208,12 @@ if (content === "!قوانين") {
 
   return message.channel.send({ embeds: [embed] });
 }
-/* ========= اسكت ========= */
+/* ======== اسكت ======== */
 
-if (content.startsWith("$اسكت")) {
+if (message.content.startsWith("$اسكت")) {
+
+  const ms = require("ms");
+  const { PermissionsBitField } = require("discord.js");
 
   if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
     return message.reply("❌ ما عندك صلاحية.");
@@ -219,10 +222,10 @@ if (content.startsWith("$اسكت")) {
   const member = message.mentions.members.first();
   if (!member) return message.reply("❌ منشن شخص.");
 
-  const args = content.split(" ");
+  const args = message.content.split(" ");
   const time = args[2];
 
-  if (!time) return message.reply("❌ حدد المدة مثال: 5m");
+  if (!time) return message.reply("❌ اكتب المدة مثال: 5m");
 
   const duration = ms(time);
   if (!duration) return message.reply("❌ مدة غير صحيحة.");
@@ -231,15 +234,8 @@ if (content.startsWith("$اسكت")) {
     return message.reply("❌ رتبة البوت أقل من الشخص.");
   }
 
-  try {
-
-    await member.timeout(duration, `اسكت بواسطة ${message.author.tag}`);
-
-    message.reply(`✅ تم إسكات ${member.user.tag} لمدة ${time}`);
-
-  } catch {
-    message.reply("❌ صار خطأ.");
-  }
+  await member.timeout(duration);
+  message.reply(`✅ تم إسكات ${member.user.tag} لمدة ${time}`);
 }
   ///* ---------- مهام ---------- */
 

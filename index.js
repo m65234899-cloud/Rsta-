@@ -216,6 +216,28 @@ if (content.startsWith("$s ")) {
     console.log(err);
   }
 }
+  /* ---------- !يوزر ---------- */
+
+if (message.content === "!يوزر") {
+
+  if (!message.guild) return;
+
+  // نجيب الأعضاء
+  await message.guild.members.fetch();
+
+  // نشيل البوتات
+  const members = message.guild.members.cache
+    .filter(member => !member.user.bot);
+
+  if (members.size === 0) {
+    return message.reply("❌ ما فيه أعضاء أختار منهم");
+  }
+
+  // اختيار عشوائي
+  const randomMember = members.random();
+
+  message.reply(`🎉 اليوزر العشوائي هو: ${randomMember}`);
+}
 /* ---------- !قوانين ---------- */
 
 if (content === "!قوانين") {

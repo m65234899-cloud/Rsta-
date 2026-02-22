@@ -21,6 +21,7 @@ const fs = require("fs");
 // ========== إعدادات ==========
 const config = {
   TOKEN: process.env.BOT_TOKEN,
+
   highRole: "1472284690504482896",
   logoRole: "1471161762819604593",
   dataFile: "./data.json",
@@ -39,7 +40,6 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers
   ],
   partials: [Partials.Channel],
 });
@@ -59,25 +59,25 @@ const ranks = [
 ];
 
 function getRank(points) {
-  let current = "<@&1471101769236090971>";
+  let current = "<@1471101769236090971>";
   for (let r of ranks) {
     if (points >= r.points) current = `<@&${r.id}>`;
   }
   return current;
 }
 
-// ========== ready ==========
+// ========== عند تشغيل البوت ==========
 client.once("ready", () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
-// ========== message commands ==========
+// ========== الأوامر ==========
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
   const content = message.content.trim();
 
-  // ---------- !me ----------
+  // !me
   if (content === "!me") {
     const pts = data.users[message.author.id] || 0;
 
@@ -93,59 +93,28 @@ client.on("messageCreate", async (message) => {
     return message.channel.send({ embeds: [embed] });
   }
 
-  // ---------- $m ----------
+  // $m
   if (content === "$m") {
     const text = `
 *** 📜 أوامر البوت ***
 
-!me
-!مهام
-!ترقيات
-!n
-!n @user +/- رقم
-!خط
-!استدعاء @user الرسالة
+!me → يعرض معلوماتك النقاط والرتبة
+!مهام → يعرض مهام الإدارة ونقاطها
+!ترقيات → يعرض نقاط الترقي للرتب
+!n → يعرض ترتيب النقاط
+!n @user +/- رقم → تعديل نقاط العضو
+!خط → إرسال صورة الخط
 `;
 
-    return message.channel.send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("🤖 أوامر البوت")
-          .setDescription(text)
-          .setColor(0x00ffff)
-      ]
-    });
+    const embed = new EmbedBuilder()
+      .setTitle("🤖 أوامر البوت")
+      .setDescription(text)
+      .setColor(0x00ffff);
+
+    return message.channel.send({ embeds: [embed] });
   }
 
-  // ---------- !خط ----------
-  if (content === "!خط") {
-    try {
-      await message.delete().catch(() => {});
-
-      return message.channel.send({
-        files: [
-          "https://cdn.discordapp.com/attachments/1471151896613097644/1474945852643737682/InShot_20260220_001522642.jpg"
-        ]
-      });
-
-    } catch {}
-  }
-
-  // ---------- !استدعاء ----------
-  if (content.startsWith("!استدعاء")) {
-    const member = message.mentions.members.first();
-    if (!member) return message.reply("❌ لازم تمنشن الشخص!");
-
-    const text = content.split(" ").slice(2).join(" ");
-    if (!text) return message.reply("❌ اكتب رسالة الاستدعاء!");
-
-    await member.send(`📌 لديك استدعاء:\n\n${text}`)
-      .catch(() => message.reply("❌ لا أستطيع إرسال الرسالة للخاص"));
-
-    return message.reply("✅ تم الاستدعاء عبر الخاص");
-  }
-
-  // ---------- !مهام ----------
+  // !مهام
   if (content === "!مهام") {
     let text = "*** Management tasks 📌 ***\n\n";
 
@@ -156,68 +125,140 @@ client.on("messageCreate", async (message) => {
     text += "تأيم أوت لمخالف : **2**\n";
     text += "مشاركة في لعبه في الشات : **1**\n";
 
+    const embed = new EmbedBuilder()
+      .setTitle("📋 المهام الإدارية")
+      .setDescription(text)
+      .setColor(0x00ffff);
+
+    return message.channel.send({ embeds: [embed] });
+  }
+
+  // !استدعاء
+  if (content.startsWith("!استدعاء")) {
+    const args = content.split(" ");
+    const userId = args[1];
+    const text = args.slice(2).join(" ");
+
+    const member = await message.guild.members.fetch(userId).catch(() => null);
+
+    if (!member) return message.reply("❌ اكتب ID صحيح");
+    if (!text) return message.reply("❌ اكتب رسالة");
+
+    await member.send(`📌 لديك استدعاء جديد:\n\n${text}`).catch(() => {
+      message.reply("❌ لا أستطيع إرسال الرسالة للخاص");
+    });
+
+    return message.reply("✅ تم الاستدعاء عبر الخاص");
+  }
+
+  // !خط
+  if (content === "!خط") {
+    await message.delete().catch(() => {});
+
     return message.channel.send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("📋 المهام الإدارية")
-          .setDescription(text)
-          .setColor(0x00ffff)
-          .setImage("https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg")
-      ]
+      files: [
+        "https://cdn.discordapp.com/attachments/1471151896613097644/1474945852643737682/InShot_20260220_001522642.jpg",
+      ],
     });
   }
 
-  // ---------- !n ----------
+  // !n ترتيب
+  if (content === "!n") {
+    const sorted = Object.entries(data.users)
+      .filter(([id, pts]) => pts > 0)
+      .sort((a, b) => b[1] - a[1]);
+
+    let text = "";
+    let i = 1;
+
+    for (let [id, pts] of sorted) {
+      text += `${i}- <@${id}> | ${pts} نقطة\n`;
+      i++;
+    }
+if (content === "!قوانين") {
+  const text = `
+\`\`\`قوانين الإدارة\`\`\`
+
+- **1** __ الإحترام أولاً وآخراً وقبل كل شيء سواء للاعضاء او للادارة او العليا__
+
+- **2** __ يمنع السب او المزح الثقيل بالشات حتى لو شخص تمون عليه .__
+
+- **3** __ يمنع إستخدامك لصلاحياتك من قبل الإدارة في نطاق خارج الإدارة تحاسب عليه حتى لو مزح __
+
+- **4** __عدم تكبير المواضيع في الشات بين اثنين يمزحون مزح خفيف __
+-# طالما مافي اي الفاظ 
+
+- **5** __يمنع الدق بالكلام على اعضاء او خلق مشاكل __
+
+- **6** __ عدم مجادلة اداري منعًا باتًا حتى وان كان غلطان واذا هنالك مشكلة عليك فتح تكت عليا__
+
+- **7** __ ممنوع التحذير بالشات منعًا باتًا تجنبًا للمجادلة واكتفوا بتحذيرات البوت وفي حال تكلم بالشات عن التحذير اطلبوا منه يفتح تكت__
+
+**__ •  8 ممنوع مجادلة العليا في اي قرار__** 
+<@&1387058128801234955>
+`;
+
+  const embed = new EmbedBuilder()
+    .setTitle("📜 قوانين الإدارة")
+    .setDescription(text)
+    .setColor(0x00ffff);
+
+  return message.channel.send({ embeds: [embed] });
+}
+    const embed = new EmbedBuilder()
+      .setTitle("📋 ترتيب النقاط")
+      .setDescription(text || "لا يوجد نقاط")
+      .setColor(0x808080);
+
+    return message.channel.send({ embeds: [embed] });
+  }
+
+  // !
+  // !n @user تعديل نقاط
   if (content.startsWith("!n ")) {
     const member = message.mentions.members.first();
     if (!member) return message.reply("❌ منشن الشخص!");
 
-    const change = content.split(" ")[2];
+    const args = content.split(" ");
+    const change = args[2];
+
     let pts = data.users[member.id] || 0;
 
     if (!change) {
-      return message.channel.send({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("📌 معلومات العضو")
-            .setDescription(`
+      const embed = new EmbedBuilder()
+        .setTitle("📌 معلومات العضو")
+        .setDescription(`
 • الاسم: <@${member.id}>
 • النقاط: **${pts}**
 • الرتبة: ${getRank(pts)}
 `)
-            .setColor(0x00ffff)
-        ]
-      });
+        .setColor(0x00ffff);
+
+      return message.channel.send({ embeds: [embed] });
     }
 
     const num = parseInt(change);
     if (isNaN(num)) return message.reply("❌ لازم رقم");
 
+    const oldPts = pts;
     pts += num;
     if (pts < 0) pts = 0;
 
     data.users[member.id] = pts;
     saveData();
 
-    return message.channel.send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("✅ تم تحديث النقاط")
-          .setDescription(`
+    const embed = new EmbedBuilder()
+      .setTitle("✅ تم تحديث النقاط")
+      .setDescription(`
 • العضو: <@${member.id}>
+• النقاط السابقة: **${oldPts}**
 • النقاط الجديدة: **${pts}**
-• الرتبة: ${getRank(pts)}
+• الرتبة الحالية: ${getRank(pts)}
 `)
-          .setColor(0x00ff00)
-      ]
-    });
+      .setColor(0x00ff00);
+
+    return message.channel.send({ embeds: [embed] });
   }
-
-});
-
-// ========== interactions ==========
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isButton() && interaction.type !== InteractionType.ModalSubmit) return;
 
 });
 

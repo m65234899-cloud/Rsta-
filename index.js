@@ -138,7 +138,7 @@ if (content === "!خط") {
 
     return message.channel.send({
       files: [
-        "[![In-Shot-20260220-001522642.jpg](https://i.postimg.cc/T3NKWd48/In-Shot-20260220-001522642.jpg)](https://postimg.cc/ZW3bGSmj)"
+        "https://top4top.io/delf09a4818d9a8ded212f2e9c440fa2004.html"
       ]
     });
 

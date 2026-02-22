@@ -93,25 +93,7 @@ client.on("messageCreate", async (message) => {
       .setColor(0x00ffff);
     return message.channel.send({ embeds: [embed] });
   }
-  //===================== !مهام =====================
-if (content === "!مهام") {
-  let text = "*** Management tasks 📌 ***\n\n";
 
-  text += "استلام تكت : **3**\n";
-  text += "محاسبة عضو : **2**\n";
-  text += "فعاليه في الشات : **3**\n";
-  text += "مساعدة عضو : **1**\n";
-  text += "تأيم أوت لمخالف : **2**\n";
-  text += "مشاركة في لعبه في الشات : **1**\n";
-
-  const embed = new EmbedBuilder()
-    .setTitle("📋 المهام الإدارية")
-    .setDescription(text)
-    .setColor(0x00ffff)
-    .setImage("https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg");
-
-  return message.channel.send({ embeds: [
-}
   // ===================== !ترقيات =====================
   if (content === "!ترقيات") {
     let text = "__النقاط المطلوبه للترقيه__\n\n";
@@ -127,7 +109,43 @@ if (content === "!مهام") {
       .setColor(0xffd700);
     return message.channel.send({ embeds: [embed] });
   }
+//===================== !مهام =====================
+if (content === "!مهام") {
+  let text = "*** Management tasks 📌 ***\n\n";
 
+  text += "استلام تكت : **3**\n";
+  text += "محاسبة عضو : **2**\n";
+  text += "فعاليه في الشات : **3**\n";
+  text += "مساعدة عضو : **1**\n";
+  text += "تأيم أوت لمخالف : **2**\n";
+  text += "مشاركة في لعبه في الشات : **1**\n";
+
+  const embed = new EmbedBuilder()
+    .setTitle("📋 المهام الإدارية")
+    .setDescription(text)
+    .setColor(0x00ffff)
+    .setImage(
+      "https://cdn.discordapp.com/attachments/1466707904391549030/1471915849337147552/InShot_20260213_200749380.jpg"
+    );
+
+  return message.channel.send({ embeds: [embed] });
+}
+
+//===================== !خط =====================
+if (content === "!خط") {
+  try {
+    await message.delete().catch(() => {});
+
+    return message.channel.send({
+      files: [
+        "https://cdn.discordapp.com/attachments/1471151896613097644/1474939789609275695/InShot_20260220_001522642.jpg"
+      ]
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+}
   // ===================== !n =====================
   if (content === "!n") {
     const sorted = Object.entries(data.users)
@@ -149,19 +167,7 @@ if (content === "!مهام") {
 
     return message.channel.send({ embeds: [embed] });
   }
-//===================== !خط =====================
-if (content === "!خط") {
-  try {
-    await message.delete().catch(() => {});
 
-    return message.channel.send({
-      files: [
-        "https://cdn.discordapp.com/attachments/1471151896613097644/1474939789609275695/InShot_20260220_001522642.jpg"
-      ]
-    });
-  } catch (err) {
-    console.log(err);
-}
   // ===================== !n @user (+/-) =====================
   if (content.startsWith("!n ")) {
     const member = message.mentions.members.first();
